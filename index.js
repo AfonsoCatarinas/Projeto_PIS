@@ -9,7 +9,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-//N faço a minima para que é que é isto
 /*// Pedido de GET para a raíz
 app.get('/', (req, res) => {
  res.send(`Verbo: ${req.method} URL: ${req.url}`);
