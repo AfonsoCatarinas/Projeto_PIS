@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Movies - Início</title>
+    <style>
+        :root {
+            --dark-bg: #040714;
+            --card-bg: #0c111b;
+            --accent: #0063e5;
+            --accent-hover: #0483ee;
+            --text: #f9f9f9;
+            --text-light: #c0c0c0;
+            --border: #2a2a3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        header {
+            background: var(--dark-bg);
+            padding: 20px 40px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--text);
+        }
+        .hero {
+            height: 85vh;
+            background: linear-gradient(rgba(4, 7, 20, 0.8), rgba(4, 7, 20, 0.9)), 
+                        url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1600');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            margin-bottom: 60px;
+            margin-top: 80px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            max-width: 800px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #0063e5, #0483ee);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            padding: 14px 35px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 99, 229, 0.3);
+        }
+        main {
+            padding: 0 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 70px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: var(--text);
+            padding-left: 5px;
+        }
+        .movies-row {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 15px 5px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--dark-bg);
+        }
+
+        .movies-row::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .movies-row::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+            border-radius: 3px;
+        }
+
+        .movies-row::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .movie-card {
+            flex: 0 0 auto;
+            width: 220px;
+            transition: all 0.3s ease;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.08);
+            z-index: 10;
+        }
+
+        .movie-poster-container {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 330px;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .movie-card:hover .movie-poster {
+            transform: scale(1.05);
+        }
+
+        .movie-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .movie-year {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .movie-rating {
+            color: #ffd700;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .reviews-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .review-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s;
+        }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .review-user {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .review-rating {
+            color: #ffd700;
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .review-movie {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .review-comment {
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        footer {
+            background: var(--card-bg);
+            padding: 50px 40px;
+            text-align: center;
+            margin-top: 100px;
+            border-top: 1px solid var(--border);
+        }
+
+        footer p {
+            color: var(--text-light);
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-logo {
+            color: var(--accent);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .loading:after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        @media (max-width: 768px) {
+            header, main, .hero {
+                padding: 20px;
+            }
+            
+            .hero {
+                margin-top: 60px;
+                height: 75vh;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+            
+            .movie-card {
+                width: 180px;
+            }
+            
+            .movie-poster {
+                height: 270px;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .reviews-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .movie-card {
+                width: 160px;
+            }
+            
+            .movie-poster {
+                height: 240px;
+            }
+            
+            nav ul {
+                gap: 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">PIS MOVIES</div>
+            <nav>
+                <ul>
+                    <li><a href="/frontoffice">Início</a></li>
+                    <li><a href="/frontoffice/movies">Filmes</a></li>
+                    <li><a href="/frontoffice/search">Pesquisar</a></li>
+                    <li><a href="/frontoffice/login" class="btn" style="padding: 10px 25px; font-size: 0.95rem;">Entrar</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>O melhor do cinema ao seu alcance</h1>
+            <p>Descubra milhares de filmes, crie listas personalizadas e partilhe as suas reviews com a comunidade.</p>
+            <a href="/frontoffice/register" class="btn">Começar Agora</a>
+        </section>
+
+        <section>
+            <h2>Em Destaque</h2>
+            <div class="movies-row" id="featured-movies">
+                <div class="loading">A carregar filmes em destaque</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Últimas Avaliações</h2>
+            <div class="reviews-container" id="latest-reviews">
+                <div class="loading">A carregar avaliações recentes</div>
+            </div>
+        </section>
+
+        <section style="text-align: center; margin-top: 80px;">
+            <h2>Pronto para começar?</h2>
+            <p style="color: var(--text-light); margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Junte-se a milhares de cinéfilos e descubra o mundo do cinema como nunca antes.
+            </p>
+            <a href="/frontoffice/movies" class="btn btn-secondary">Explorar Catálogo</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-logo">PIS MOVIES</div>
+        <p>O seu portal definitivo para o mundo do cinema</p>
+        <p>Projeto Programação e Integração de Serviços</p>
+        <p>CTeSP - TPSI &copy; 2025</p>
+    </footer>
+
+<script>
+    // ====================
+    // CONFIGURAÇÃO
+    // ====================
+    const API_BASE = '/api';
+    
+    // ====================
+    // CARREGAR FILMES
+    // ====================
+    async function loadMovies() {
+        try {
+            const response = await fetch(`${API_BASE}/movies`);
+            if (!response.ok) throw new Error('Erro ao carregar filmes');
+            
+            const movies = await response.json();
+            
+            // Em Destaque (primeiros 8)
+            const featured = movies.slice(0, 8);
+            displayMovies(featured, 'featured-movies');
+            
+        } catch (error) {
+            console.error('Erro ao carregar filmes:', error);
+            showError('featured-movies', 'Erro ao carregar filmes');
+        }
+    }
+
+    // ====================
+    // MOSTRAR FILMES
+    // ====================
+    function displayMovies(movies, containerId) {
+        const container = document.getElementById(containerId);
+        if (!movies || movies.length === 0) {
+            container.innerHTML = '<div class="loading">Nenhum filme disponível</div>';
+            return;
+        }
+        
+        let html = '';
+        movies.forEach(movie => {
+            // Rating aleatório para demonstração (1-5)
+            const randomRating = Math.floor(Math.random() * 3) + 3; // 3-5 stars
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += i <= randomRating ? '★' : '☆';
+            }
+            
+            html += `
+                <div class="movie-card">
+                    <a href="/frontoffice/movie/${movie.id}" style="text-decoration: none; color: inherit;">
+                        <div class="movie-poster-container">
+                            <img src="${movie.poster_url || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&h=600'}" 
+                                 alt="${movie.title}" 
+                                 class="movie-poster"
+                                 onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&h=600'">
+                        </div>
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-info">
+                            <div class="movie-year">${movie.release_year || '--'}</div>
+                        </div>
+                    </a>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    // ====================
+    // CARREGAR REVIEWS DA BASE DE DADOS
+    // ====================
+    async function loadReviews() {
+        try {
+            console.log('A carregar reviews da base de dados...');
+            
+            // Tentar obter reviews sem autenticação (modo público)
+            const response = await fetch(`${API_BASE}/reviews`, {
+                method: 'GET',
+                // Não enviar token - usar modo público
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const reviews = await response.json();
+                console.log(`Reviews recebidas da API: ${reviews.length}`);
+                
+                if (reviews && reviews.length > 0) {
+                    // Mostrar apenas as 6 mais recentes
+                    const recentReviews = reviews.slice(0, 6);
+                    displayReviews(recentReviews);
+                }
+            }
+            
+        } catch (error) {
+            console.error('Erro ao carregar reviews:', error);
+        }
+    }
+
+    // ====================
+    // MOSTRAR REVIEWS REAIS
+    // ====================
+    function displayReviews(reviews) {
+        const container = document.getElementById('latest-reviews');
+        if (!reviews || reviews.length === 0) {
+            return;
+        }
+        
+        console.log('A mostrar reviews reais:', reviews);
+        
+        let html = '';
+        reviews.forEach(review => {
+            // Gerar estrelas baseadas no rating
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += i <= review.rating ? '★' : '☆';
+            }
+            
+            // Truncar comentário se for muito longo
+            const truncatedComment = review.comment 
+                ? (review.comment.length > 120 
+                    ? review.comment.substring(0, 120) + '...' 
+                    : review.comment)
+                : 'Sem comentário';
+            
+            html += `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-user">${review.user_name || 'Utilizador Anónimo'}</div>
+                        <div class="review-rating" title="${review.rating} estrelas">${stars}</div>
+                    </div>
+                    <div class="review-movie" title="Avaliação do filme: ${review.movie_title || 'Filme desconhecido'}">
+                        ${review.movie_title || 'Filme desconhecido'}
+                    </div>
+                    <div class="review-comment">${truncatedComment}</div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    // ====================
+    // FUNÇÃO ALTERNATIVA: Carregar reviews públicas específicas
+    // ====================
+    async function loadPublicReviews() {
+        try {
+            // Método alternativo: Carregar reviews de filmes específicos
+            // Pode fazer vários requests para obter reviews públicas
+            console.log('Tentando método alternativo para carregar reviews...');
+            
+            // Primeiro, obter alguns filmes populares
+            const moviesResponse = await fetch(`${API_BASE}/movies?limit=5`);
+            if (!moviesResponse.ok) {
+                throw new Error('Erro ao carregar filmes');
+            }
+            
+            const movies = await moviesResponse.json();
+            console.log(`Filmes carregados para buscar reviews: ${movies.length}`);
+            
+            // Tentar obter reviews para cada filme
+            const allReviews = [];
+            
+            for (const movie of movies.slice(0, 3)) { // Limitar a 3 filmes
+                try {
+                    const reviewsResponse = await fetch(`${API_BASE}/reviews/movie/${movie.id}`);
+                    if (reviewsResponse.ok) {
+                        const movieReviews = await reviewsResponse.json();
+                        // Adicionar título do filme a cada review
+                        movieReviews.forEach(review => {
+                            review.movie_title = movie.title;
+                        });
+                        allReviews.push(...movieReviews);
+                    }
+                } catch (error) {
+                    console.log(`Não foi possível carregar reviews para o filme ${movie.id}`);
+                }
+            }
+            
+            if (allReviews.length > 0) {
+                // Ordenar por data (mais recentes primeiro)
+                allReviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                // Mostrar apenas as 6 mais recentes
+                const recentReviews = allReviews.slice(0, 6);
+                displayReviews(recentReviews);
+            }
+            
+        } catch (error) {
+            console.error('Erro no método:', error);
+        }
+    }
+
+    // ====================
+    // VERIFICAR AUTENTICAÇÃO DA API
+    // ====================
+    async function checkApiAuth() {
+        try {
+            // Tentar obter token se existir
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch(`${API_BASE}/reviews`, {
+                method: 'GET',
+                headers: headers
+            });
+            
+            return {
+                requiresAuth: response.status === 401 || response.status === 403,
+                status: response.status,
+                ok: response.ok
+            };
+            
+        } catch (error) {
+            console.error('Erro ao verificar autenticação:', error);
+            return { requiresAuth: true, error: error.message };
+        }
+    }
+
+    // ====================
+    // MOSTRAR ERRO
+    // ====================
+    function showError(containerId, message) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+            <div style="color: #0063e5; text-align: center; padding: 40px; background: rgba(0, 99, 229, 0.1); border-radius: 8px;">
+                <p style="margin-bottom: 10px;">${message}</p>
+                <button onclick="location.reload()" style="
+                    background: #0063e5;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: 500;
+                ">
+                    Tentar Novamente
+                </button>
+            </div>
+        `;
+    }
+
+    // ====================
+    // GESTÃO DE AUTENTICAÇÃO
+    // ====================
+    function checkAuth() {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                updateAuthUI(payload);
+            } catch (error) {
+                console.error('Token inválido:', error);
+                localStorage.removeItem('token');
+            }
+        }
+    }
+
+    function updateAuthUI(user) {
+        const nav = document.querySelector('nav ul');
+        if (!nav) return;
+        
+        // Atualizar link de login para perfil
+        const loginBtn = nav.querySelector('a[href="/frontoffice/login"]');
+        if (loginBtn) {
+            loginBtn.textContent = 'Minha Conta';
+            loginBtn.href = '/frontoffice/profile';
+            loginBtn.classList.remove('btn');
+            loginBtn.style.cssText = ''; // Remover estilos do botão
+            
+            // Adicionar logout
+            const logoutItem = document.createElement('li');
+            logoutItem.innerHTML = `
+                <a href="#" onclick="logout()" style="color: #ff4d4d; font-weight: 600; padding: 8px 12px; border-radius: 4px;">
+                    Sair
+                </a>
+            `;
+            nav.appendChild(logoutItem);
+        }
+    }
+
+    function logout() {
+        if (confirm('Deseja terminar sessão?')) {
+            localStorage.removeItem('token');
+            location.reload();
+        }
+    }
+
+    // ====================
+    // INICIALIZAÇÃO
+    // ====================
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('Página inicial carregada');
+        
+        // 1. Verificar autenticação do utilizador
+        checkAuth();
+        
+        // 2. Carregar filmes
+        loadMovies();
+        
+        // 3. Verificar se a API de reviews precisa de autenticação
+        const authStatus = await checkApiAuth();
+        console.log('Status da API de reviews:', authStatus);
+        
+        if (authStatus.ok) {
+            // API não requer autenticação
+            await loadReviews();
+        } else if (authStatus.requiresAuth) {
+            // API requer autenticação, tentar método alternativo
+            console.log('API requer autenticação, tentando método alternativo...');
+            await loadPublicReviews();
+        }
+    });
+</script>
+</body>
+</html>

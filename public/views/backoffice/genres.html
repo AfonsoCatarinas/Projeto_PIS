@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Admin - Gestão de Géneros</title>
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #0ea5e9;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .sidebar-nav {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            margin-top: auto;
+        }
+
+        .logout-btn:hover {
+            color: white;
+            background: var(--danger);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+        }
+
+        table thead {
+            border-bottom: 2px solid var(--border);
+        }
+
+        table th {
+            padding: 16px;
+            text-align: left;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-header h1,
+            .sidebar-header p,
+            .sidebar-nav a span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .modal-container {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PIS Admin</h1>
+                <p>Painel de Administração</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/backoffice">Dashboard</a></li>
+                    <li><a href="/backoffice/movies">Filmes</a></li>
+                    <li><a href="/backoffice/actors">Atores</a></li>
+                    <li><a href="/backoffice/genres" class="active">Géneros</a></li>
+                    <li><a href="/backoffice/users">Utilizadores</a></li>
+                    <li><a href="/backoffice/reviews">Reviews</a></li>
+                    <li><a href="#" onclick="logout()" class="logout-btn">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="admin-header">
+                <h1>Gestão de Géneros</h1>
+                <button class="btn btn-primary" onclick="openGenreModal()">Novo Género</button>
+            </header>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="genres-table">
+                        <!-- Os géneros serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="genreModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Género</h2>
+                <button type="button" class="close-modal" onclick="closeGenreModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="genreForm">
+                    <input type="hidden" id="genreId">
+                    
+                    <div class="form-group">
+                        <label for="genreName">Nome</label>
+                        <input type="text" id="genreName" required placeholder="Ex: Ação">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeGenreModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Guarda o ID do género que está a ser editado
+    let currentGenreId = null;
+
+    // Abre o modal para criar ou editar um género
+    function openGenreModal(genreId = null) {
+        // Obtém o elemento do modal
+        const modal = document.getElementById('genreModal');
+        
+        // Se receber um ID, está em modo de edição
+        if (genreId) {
+            currentGenreId = genreId; // Guarda o ID do género a editar
+            document.getElementById('modalTitle').textContent = 'Editar Género'; // Muda o título
+            loadGenreData(genreId); // Carrega os dados do género no formulário
+        } else {
+            // Se não receber ID, está em modo de criação
+            currentGenreId = null; // Não há género a editar
+            document.getElementById('modalTitle').textContent = 'Novo Género'; // Muda o título
+            resetGenreForm(); // Limpa o formulário para criar novo
+        }
+        
+        // Mostra o modal na página
+        modal.classList.add('active');
+    }
+
+    // Fecha o modal
+    function closeGenreModal() {
+        // Obtém o elemento do modal
+        const modal = document.getElementById('genreModal');
+        modal.classList.remove('active'); // Esconde o modal
+        resetGenreForm(); // Limpa o formulário
+    }
+
+    // Limpa o formulário e reseta as variáveis
+    function resetGenreForm() {
+        document.getElementById('genreForm').reset(); // Limpa todos os campos
+        currentGenreId = null; // Reseta o ID de edição
+    }
+
+    // Carrega os dados de um género específico para edição
+    async function loadGenreData(genreId) {
+        try {
+            // Faz pedido à API para obter os dados do género
+            const response = await fetch(`/api/genres/${genreId}`);
+            const genre = await response.json(); // Converte resposta para JSON
+            
+            // Preenche o campo do nome no formulário
+            document.getElementById('genreName').value = genre.name || '';
+            
+        } catch (error) {
+            alert('Erro ao carregar dados do género'); // Mostra erro ao utilizador
+            closeGenreModal(); // Fecha o modal
+        }
+    }
+
+    // Carrega todos os géneros e mostra na tabela
+    async function loadGenres() {
+        try {
+            // Faz pedido à API para obter todos os géneros
+            const response = await fetch('/api/genres');
+            const genres = await response.json(); // Converte resposta para JSON
+            
+            // Obtém o corpo da tabela onde os géneros vão aparecer
+            const tableBody = document.getElementById('genres-table');
+            
+            // Se não houver géneros, mostra mensagem
+            if (genres.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3">Nenhum género encontrado</td></tr>';
+                return;
+            }
+            
+            // Cria o HTML para cada género na tabela
+            let html = '';
+            genres.forEach(genre => {
+                html += `
+                    <tr>
+                        <td>${genre.id}</td> <!-- ID do género -->
+                        <td><strong>${genre.name}</strong></td> <!-- Nome do género -->
+                        <td class="actions">
+                            <!-- Botão para editar o género -->
+                            <button onclick="editGenre(${genre.id})" class="btn btn-primary btn-sm">Editar</button>
+                            <!-- Botão para apagar o género -->
+                            <button onclick="deleteGenre(${genre.id})" class="btn btn-danger btn-sm">Apagar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // Insere o HTML na tabela
+            tableBody.innerHTML = html;
+            
+        } catch (error) {
+            alert('Erro ao carregar géneros'); // Mostra erro ao utilizador
+        }
+    }
+
+    // Guarda um género (cria novo ou atualiza existente)
+    async function saveGenre(genreData) {
+        try {
+            // Obtém o token de autenticação do localStorage
+            const token = localStorage.getItem('token');
+            
+            // Define o URL e método HTTP conforme seja criação ou edição
+            const url = currentGenreId ? `/api/genres/${currentGenreId}` : '/api/genres';
+            const method = currentGenreId ? 'PUT' : 'POST';
+            
+            // Faz o pedido à API para guardar o género
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Envia token para autenticação
+                },
+                body: JSON.stringify(genreData) // Converte dados para JSON
+            });
+            
+            // Verifica se a operação foi bem sucedida
+            if (response.ok) {
+                const message = currentGenreId ? 'Género atualizado!' : 'Género criado!';
+                alert(message); // Mostra mensagem de sucesso
+                return true; // Retorna verdadeiro para indicar sucesso
+            } else {
+                const error = await response.json(); // Obtém erro da API
+                throw new Error(error.error || 'Erro ao guardar'); // Lança erro
+            }
+            
+        } catch (error) {
+            alert('Erro: ' + error.message); // Mostra erro ao utilizador
+            return false; // Retorna falso para indicar falha
+        }
+    }
+
+    // Apaga um género
+    async function deleteGenre(genreId) {
+        // Pede confirmação ao utilizador antes de apagar
+        if (!confirm('Tem certeza que deseja apagar este género?')) {
+            return; // Se não confirmar, cancela
+        }
+        
+        try {
+            const token = localStorage.getItem('token'); // Obtém token
+            
+            // Faz pedido DELETE à API para apagar o género
+            const response = await fetch(`/api/genres/${genreId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}` // Envia token para autenticação
+                }
+            });
+            
+            if (response.ok) {
+                alert('Género apagado!'); // Mostra mensagem de sucesso
+                await loadGenres(); // Recarrega a lista de géneros
+            } else {
+                throw new Error('Erro ao apagar género'); // Lança erro
+            }
+            
+        } catch (error) {
+            alert('Erro: ' + error.message); // Mostra erro ao utilizador
+        }
+    }
+
+    // Processa o envio do formulário
+    async function handleGenreSubmit(event) {
+        event.preventDefault(); // Impede o comportamento padrão do formulário
+        
+        // Obtém os dados do formulário
+        const genreData = {
+            name: document.getElementById('genreName').value.trim() // Nome do género
+        };
+        
+        // Validação básica - verifica se o nome não está vazio
+        if (!genreData.name) {
+            alert('Nome é obrigatório'); // Mostra erro
+            return; // Para a execução
+        }
+        
+        // Guarda o género
+        const success = await saveGenre(genreData);
+        
+        // Se guardou com sucesso
+        if (success) {
+            closeGenreModal(); // Fecha o modal
+            await loadGenres(); // Recarrega a lista de géneros
+        }
+    }
+
+    // Função auxiliar para editar um género (abre o modal com o ID)
+    function editGenre(genreId) {
+        openGenreModal(genreId);
+    }
+
+    // Termina a sessão do utilizador
+    function logout() {
+        // Pede confirmação antes de terminar sessão
+        if (confirm('Terminar sessão?')) {
+            localStorage.removeItem('token'); // Remove o token de autenticação
+            window.location.href = '/frontoffice'; // Redireciona para a página inicial
+        }
+    }
+
+    // Código executado quando a página carrega completamente
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configura o evento de submissão do formulário
+        document.getElementById('genreForm').addEventListener('submit', handleGenreSubmit);
+        
+        // Verifica se o utilizador está autenticado
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Faça login primeiro'); // Mostra erro
+            window.location.href = '/frontoffice/login'; // Redireciona para login
+            return; // Para a execução
+        }
+        
+        // Carrega a lista de géneros quando a página abre
+        loadGenres();
+    });
+</script>
+</body>
+</html>
