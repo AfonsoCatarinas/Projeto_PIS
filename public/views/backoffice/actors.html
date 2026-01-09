@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Admin - Gestão de Atores</title>
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #0ea5e9;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .sidebar-nav {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            margin-top: auto;
+        }
+
+        .logout-btn:hover {
+            color: white;
+            background: var(--danger);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        table thead {
+            border-bottom: 2px solid var(--border);
+        }
+
+        table th {
+            padding: 16px;
+            text-align: left;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 6px;
+            color: var(--text-light);
+            font-size: 0.75rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-header h1,
+            .sidebar-header p,
+            .sidebar-nav a span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .modal-container {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PIS Admin</h1>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/backoffice">Dashboard</a></li>
+                    <li><a href="/backoffice/movies">Filmes</a></li>
+                    <li><a href="/backoffice/actors" class="active">Atores</a></li>
+                    <li><a href="/backoffice/genres">Géneros</a></li>
+                    <li><a href="/backoffice/users">Utilizadores</a></li>
+                    <li><a href="/backoffice/reviews">Reviews</a></li>
+                    <li><a href="#" onclick="logout()" class="logout-btn">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="admin-header">
+                <h1>Gestão de Atores</h1>
+                <button class="btn btn-primary" onclick="openActorModal()">Novo Ator</button>
+            </header>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Data Nascimento</th>
+                            <th>Biografia</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actors-table">
+                        <!-- Os atores serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="actorModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Ator</h2>
+                <button type="button" class="close-modal" onclick="closeActorModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="actorForm">
+                    <input type="hidden" id="actorId" value="">
+                    
+                    <div class="form-group">
+                        <label for="actorName">Nome *</label>
+                        <input type="text" id="actorName" required placeholder="Ex: Leonardo DiCaprio">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="actorBio">Biografia</label>
+                        <textarea id="actorBio" placeholder="Breve descrição sobre o ator..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="actorBirthDate">Data de Nascimento</label>
+                        <input type="date" id="actorBirthDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="actorPhoto">URL da Foto</label>
+                        <input type="text" id="actorPhoto" placeholder="https://exemplo.com/foto.jpg">
+                        <small>Deixe em branco para usar imagem padrão</small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <span id="submitButtonText">Guardar</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeActorModal()">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Guarda o ID do ator que está a ser editado
+    let editingActorId = null;
+
+    // Função para abrir o modal para criar ou editar um ator
+    function openActorModal(actorId = null) {
+        const modal = document.getElementById('actorModal');
+        
+        // Se receber um ID, está em modo de edição
+        if (actorId) {
+            editingActorId = actorId;
+            document.getElementById('modalTitle').textContent = 'Editar Ator';
+            document.getElementById('submitButtonText').textContent = 'Atualizar';
+            loadActorData(actorId); // Carrega os dados do ator no formulário
+        } else {
+            // Se não receber ID, está em modo de criação
+            editingActorId = null;
+            document.getElementById('modalTitle').textContent = 'Novo Ator';
+            document.getElementById('submitButtonText').textContent = 'Criar';
+            resetActorForm(); // Limpa o formulário
+        }
+        
+        // Mostra o modal
+        modal.classList.add('active');
+    }
+
+    // Função para fechar o modal
+    function closeActorModal() {
+        const modal = document.getElementById('actorModal');
+        modal.classList.remove('active'); // Esconde o modal
+        resetActorForm(); // Limpa o formulário
+    }
+
+    // Função para limpar o formulário
+    function resetActorForm() {
+        document.getElementById('actorForm').reset(); // Limpa todos os campos
+        editingActorId = null; // Reseta o ID de edição
+    }
+
+    // Carrega a lista de atores da API e mostra na tabela
+    async function loadActors() {
+        try {
+            // Faz pedido à API para obter todos os atores
+            const response = await fetch('/api/actors');
+            const actors = await response.json();
+            
+            const tableBody = document.getElementById('actors-table');
+            
+            // Se não houver atores, mostra mensagem
+            if (actors.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5">Nenhum ator encontrado</td></tr>';
+                return;
+            }
+            
+            // Cria o HTML para cada ator na tabela
+            let html = '';
+            actors.forEach(actor => {
+                // Formata a data de nascimento
+                const birthDate = actor.birth_date ? 
+                    new Date(actor.birth_date).toLocaleDateString('pt-PT') : 'N/A';
+                
+                // Cria a imagem do ator (se tiver foto) ou mostra placeholder
+                const actorImage = actor.photo_url ? 
+                    `<img src="${actor.photo_url}" alt="${actor.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px;">` :
+                    `<div style="width: 40px; height: 40px; background: #ccc; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; color: #666; font-size: 12px;">Sem foto</div>`;
+                
+                // Adiciona uma linha na tabela para este ator
+                html += `
+                    <tr>
+                        <td>${actor.id}</td>
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                ${actorImage}
+                                <strong>${actor.name}</strong>
+                            </div>
+                        </td>
+                        <td>${birthDate}</td>
+                        <td>${actor.bio ? actor.bio.substring(0, 50) + '...' : 'N/A'}</td>
+                        <td class="actions">
+                            <button onclick="editActor(${actor.id})" class="btn btn-primary btn-sm">Editar</button>
+                            <button onclick="deleteActor(${actor.id})" class="btn btn-danger btn-sm">Apagar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // Insere o HTML na tabela
+            tableBody.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Erro ao carregar atores:', error);
+            alert('Erro ao carregar atores');
+        }
+    }
+
+    // Carrega os dados de um ator específico para edição
+    async function loadActorData(actorId) {
+        try {
+            // Faz pedido à API para obter os dados do ator
+            const response = await fetch(`/api/actors/${actorId}`);
+            const actor = await response.json();
+            
+            // Preenche o formulário com os dados do ator
+            document.getElementById('actorName').value = actor.name;
+            document.getElementById('actorBio').value = actor.bio || '';
+            document.getElementById('actorPhoto').value = actor.photo_url || '';
+            
+            // Formata a data de nascimento para o input date
+            if (actor.birth_date) {
+                const birthDate = new Date(actor.birth_date);
+                const formattedDate = birthDate.toISOString().split('T')[0];
+                document.getElementById('actorBirthDate').value = formattedDate;
+            }
+            
+        } catch (error) {
+            console.error('Erro ao carregar ator:', error);
+            alert('Erro ao carregar dados do ator');
+        }
+    }
+
+    // Guarda um ator (cria novo ou atualiza existente)
+    async function saveActor(actorData) {
+        try {
+            // Obtém o token de autenticação do localStorage
+            const token = localStorage.getItem('token');
+            
+            // Define o URL e método HTTP conforme seja criação ou edição
+            const url = editingActorId ? `/api/actors/${editingActorId}` : '/api/actors';
+            const method = editingActorId ? 'PUT' : 'POST';
+            
+            // Faz o pedido à API
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(actorData)
+            });
+            
+            // Verifica se a operação foi bem sucedida
+            if (response.ok) {
+                const message = editingActorId ? 'Ator atualizado!' : 'Ator criado!';
+                alert(message);
+                closeActorModal(); // Fecha o modal
+                await loadActors(); // Recarrega a lista de atores
+            } else {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao guardar');
+            }
+            
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    }
+
+    // Apaga um ator
+    async function deleteActor(actorId) {
+        // Pede confirmação ao utilizador
+        if (!confirm('Tem certeza que deseja apagar este ator?')) {
+            return;
+        }
+        
+        try {
+            const token = localStorage.getItem('token');
+            
+            // Faz pedido DELETE à API
+            const response = await fetch(`/api/actors/${actorId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                alert('Ator apagado!');
+                await loadActors(); // Recarrega a lista de atores
+            } else {
+                throw new Error('Erro ao apagar ator');
+            }
+            
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    }
+
+    // Processa o envio do formulário
+    async function handleActorSubmit(event) {
+        event.preventDefault(); // Impede o comportamento padrão do formulário
+        
+        // Obtém os dados do formulário
+        const actorData = {
+            name: document.getElementById('actorName').value.trim(),
+            bio: document.getElementById('actorBio').value.trim(),
+            birth_date: document.getElementById('actorBirthDate').value || null,
+            photo_url: document.getElementById('actorPhoto').value.trim() || null
+        };
+        
+        // Validação básica
+        if (!actorData.name) {
+            alert('Nome é obrigatório');
+            return;
+        }
+        
+        // Se não tiver URL da foto, usa uma imagem padrão
+        if (!actorData.photo_url) {
+            actorData.photo_url = 'https://via.placeholder.com/150/cccccc/666666?text=SEM+FOTO';
+        }
+        
+        // Guarda o ator
+        await saveActor(actorData);
+    }
+
+    // Função auxiliar para editar um ator
+    function editActor(actorId) {
+        openActorModal(actorId);
+    }
+
+    // Termina a sessão do utilizador
+    function logout() {
+        if (confirm('Terminar sessão?')) {
+            localStorage.removeItem('token'); // Remove o token
+            window.location.href = '/frontoffice'; // Redireciona para a página inicial
+        }
+    }
+
+    // Código executado quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configura o evento de submissão do formulário
+        document.getElementById('actorForm').addEventListener('submit', handleActorSubmit);
+        
+        // Verifica se o utilizador está autenticado
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Faça login primeiro');
+            window.location.href = '/frontoffice/login';
+            return;
+        }
+        
+        // Carrega a lista de atores
+        loadActors();
+    });
+</script>
+</body>
+</html>

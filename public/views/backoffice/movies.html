@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Admin - Gestão de Filmes</title>
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #0ea5e9;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .sidebar-nav {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            margin-top: auto;
+        }
+
+        .logout-btn:hover {
+            color: white;
+            background: var(--danger);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        table thead {
+            border-bottom: 2px solid var(--border);
+        }
+
+        table th {
+            padding: 16px;
+            text-align: left;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group.required label::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .genres-container {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .genre-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .genre-checkbox input {
+            margin-right: 10px;
+            width: auto;
+            accent-color: var(--accent);
+        }
+
+        .genre-checkbox label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-header h1,
+            .sidebar-header p,
+            .sidebar-nav a span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .modal-container {
+                max-width: 95%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PIS Admin</h1>
+                <p>Painel de Administração</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/backoffice">Dashboard</a></li>
+                    <li><a href="/backoffice/movies" class="active">Filmes</a></li>
+                    <li><a href="/backoffice/actors">Atores</a></li>
+                    <li><a href="/backoffice/genres">Géneros</a></li>
+                    <li><a href="/backoffice/users">Utilizadores</a></li>
+                    <li><a href="/backoffice/reviews">Reviews</a></li>
+                    <li><a href="#" onclick="logout()" class="logout-btn">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="admin-header">
+                <h1>Gestão de Filmes</h1>
+                <button class="btn btn-primary" onclick="openMovieModal()">Novo Filme</button>
+            </header>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Sinopse</th>
+                            <th>Duração</th>
+                            <th>Ano</th>
+                            <th>ID Realizador</th>
+                            <th>Poster URL</th>
+                            <th>Trailer URL</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="movies-table">
+                        <!-- Os filmes serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="movieModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Filme</h2>
+                <button type="button" class="close-modal" onclick="closeMovieModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="movieForm">
+                    <input type="hidden" id="movieId" value="">
+                    
+                    <div class="form-group required">
+                        <label for="movieTitle">Título</label>
+                        <input type="text" id="movieTitle" required placeholder="Ex: Inception">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="movieSynopsis">Sinopse</label>
+                        <textarea id="movieSynopsis" placeholder="Breve descrição do filme..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="movieDuration">Duração (minutos)</label>
+                            <input type="number" id="movieDuration" min="1" max="500" placeholder="120">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="movieYear">Ano de Lançamento</label>
+                            <input type="number" id="movieYear" min="1900" max="2030" placeholder="2024">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="movieDirector">Realizador</label>
+                        <select id="movieDirector">
+                            <option value="">Selecione um realizador...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Géneros</label>
+                        <div class="genres-container" id="genresContainer">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="moviePoster">URL do Poster</label>
+                            <input type="text" id="moviePoster" placeholder="https://exemplo.com/poster.jpg">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="movieTrailer">URL do Trailer</label>
+                            <input type="text" id="movieTrailer" placeholder="https://youtube.com/embed/...">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeMovieModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Guarda o ID do filme que está a ser editado
+        let currentMovieId = null;
+
+        // Abre o modal para criar ou editar um filme
+        function openMovieModal(movieId = null) {
+            const modal = document.getElementById('movieModal');
+            
+            // Se receber um ID, está em modo de edição
+            if (movieId) {
+                currentMovieId = movieId;
+                document.getElementById('modalTitle').textContent = 'Editar Filme';
+                loadMovieData(movieId); // Carrega dados do filme
+            } else {
+                // Se não receber ID, está em modo de criação
+                currentMovieId = null;
+                document.getElementById('modalTitle').textContent = 'Novo Filme';
+                resetMovieForm(); // Limpa formulário
+                loadDirectors(); // Carrega lista de realizadores
+                loadGenres(); // Carrega lista de géneros
+            }
+            
+            // Mostra o modal
+            modal.classList.add('active');
+        }
+
+        // Fecha o modal
+        function closeMovieModal() {
+            const modal = document.getElementById('movieModal');
+            modal.classList.remove('active'); // Esconde o modal
+            resetMovieForm(); // Limpa o formulário
+        }
+
+        // Limpa o formulário
+        function resetMovieForm() {
+            document.getElementById('movieForm').reset();
+            currentMovieId = null;
+        }
+
+        // Carrega a lista de realizadores (atores) para o dropdown
+        async function loadDirectors() {
+            try {
+                const response = await fetch('/api/actors');
+                const actors = await response.json();
+                
+                const select = document.getElementById('movieDirector');
+                select.innerHTML = '<option value="">Selecione um realizador...</option>';
+                
+                // Adiciona cada ator como opção no dropdown
+                actors.forEach(actor => {
+                    select.innerHTML += `<option value="${actor.id}">${actor.name}</option>`;
+                });
+            } catch (error) {
+                console.error('Erro ao carregar realizadores:', error);
+            }
+        }
+
+        // Carrega a lista de géneros para os checkboxes
+        async function loadGenres() {
+            try {
+                const response = await fetch('/api/genres');
+                const genres = await response.json();
+                
+                const container = document.getElementById('genresContainer');
+                container.innerHTML = '';
+                
+                // Cria um checkbox para cada género
+                genres.forEach(genre => {
+                    container.innerHTML += `
+                        <div class="genre-checkbox">
+                            <input type="checkbox" id="genre-${genre.id}" value="${genre.id}">
+                            <label for="genre-${genre.id}">${genre.name}</label>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error('Erro ao carregar géneros:', error);
+            }
+        }
+
+        // Carrega os dados de um filme específico para edição
+        async function loadMovieData(movieId) {
+            try {
+                // Primeiro carrega as listas de realizadores e géneros
+                await loadDirectors();
+                await loadGenres();
+                
+                // Depois carrega os dados do filme
+                const response = await fetch(`/api/movies/${movieId}`);
+                const movie = await response.json();
+                
+                // Preenche os campos do formulário
+                document.getElementById('movieTitle').value = movie.title || '';
+                document.getElementById('movieSynopsis').value = movie.synopsis || '';
+                document.getElementById('movieDuration').value = movie.duration || '';
+                document.getElementById('movieYear').value = movie.release_year || '';
+                document.getElementById('moviePoster').value = movie.poster_url || '';
+                document.getElementById('movieTrailer').value = movie.trailer_url || '';
+                document.getElementById('movieDirector').value = movie.director_id || '';
+                
+                // Marca os géneros selecionados do filme
+                if (movie.genres && Array.isArray(movie.genres)) {
+                    movie.genres.forEach(genre => {
+                        const checkbox = document.getElementById(`genre-${genre.id}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+                
+            } catch (error) {
+                alert('Erro ao carregar dados do filme');
+                closeMovieModal();
+            }
+        }
+
+        // Carrega todos os filmes e mostra na tabela
+        async function loadMovies() {
+            try {
+                const response = await fetch('/api/movies');
+                const movies = await response.json();
+                
+                const tableBody = document.getElementById('movies-table');
+                
+                // Se não houver filmes, mostra mensagem
+                if (movies.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="9">Nenhum filme encontrado</td></tr>';
+                    return;
+                }
+                
+                // Cria o HTML para cada filme na tabela
+                let html = '';
+                movies.forEach(movie => {
+                    // Corta textos longos para caber na tabela
+                    const shortSynopsis = movie.synopsis ? 
+                        (movie.synopsis.length > 50 ? movie.synopsis.substring(0, 50) + '...' : movie.synopsis) : 
+                        'N/A';
+                    
+                    html += `
+                        <tr>
+                            <td>${movie.id}</td>
+                            <td><strong>${movie.title}</strong></td>
+                            <td>${shortSynopsis}</td>
+                            <td>${movie.duration || 'N/A'} min</td>
+                            <td>${movie.release_year || 'N/A'}</td>
+                            <td>${movie.director_id || 'N/A'}</td>
+                            <td>${movie.poster_url ? 'Sim' : 'Não'}</td>
+                            <td>${movie.trailer_url ? 'Sim' : 'Não'}</td>
+                            <td class="actions">
+                                <button onclick="editMovie(${movie.id})" class="btn btn-primary btn-sm">Editar</button>
+                                <button onclick="deleteMovie(${movie.id})" class="btn btn-danger btn-sm">Apagar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableBody.innerHTML = html;
+                
+            } catch (error) {
+                alert('Erro ao carregar filmes');
+            }
+        }
+
+        // Guarda um filme (cria novo ou atualiza existente)
+        async function saveMovie(movieData) {
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Obtém os géneros selecionados
+                const selectedGenres = [];
+                document.querySelectorAll('#genresContainer input[type="checkbox"]:checked').forEach(checkbox => {
+                    selectedGenres.push(parseInt(checkbox.value));
+                });
+                movieData.genres = selectedGenres;
+                
+                // Define URL e método conforme seja criação ou edição
+                const url = currentMovieId ? `/api/movies/${currentMovieId}` : '/api/movies';
+                const method = currentMovieId ? 'PUT' : 'POST';
+                
+                // Faz pedido à API
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(movieData)
+                });
+                
+                if (response.ok) {
+                    const message = currentMovieId ? 'Filme atualizado!' : 'Filme criado!';
+                    alert(message);
+                    return true;
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erro ao guardar');
+                }
+                
+            } catch (error) {
+                alert('Erro: ' + error.message);
+                return false;
+            }
+        }
+
+        // Apaga um filme
+        async function deleteMovie(movieId) {
+            // Pede confirmação antes de apagar
+            if (!confirm('Tem certeza que deseja apagar este filme?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch(`/api/movies/${movieId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Filme apagado!');
+                    await loadMovies(); // Recarrega a lista
+                } else {
+                    throw new Error('Erro ao apagar filme');
+                }
+                
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        }
+
+        // Processa o envio do formulário
+        async function handleMovieSubmit(event) {
+            event.preventDefault(); // Impede o envio normal do formulário
+            
+            // Obtém os dados do formulário
+            const movieData = {
+                title: document.getElementById('movieTitle').value.trim(),
+                synopsis: document.getElementById('movieSynopsis').value.trim(),
+                duration: document.getElementById('movieDuration').value || null,
+                release_year: document.getElementById('movieYear').value || null,
+                director_id: document.getElementById('movieDirector').value || null,
+                poster_url: document.getElementById('moviePoster').value.trim() || null,
+                trailer_url: document.getElementById('movieTrailer').value.trim() || null
+            };
+            
+            // Validação básica
+            if (!movieData.title) {
+                alert('Título é obrigatório');
+                return;
+            }
+            
+            // Guarda o filme
+            const success = await saveMovie(movieData);
+            
+            // Se guardou com sucesso
+            if (success) {
+                closeMovieModal(); // Fecha o modal
+                await loadMovies(); // Recarrega a lista de filmes
+            }
+        }
+
+        // Função auxiliar para editar um filme
+        function editMovie(movieId) {
+            openMovieModal(movieId);
+        }
+
+        // Termina a sessão do utilizador
+        function logout() {
+            if (confirm('Terminar sessão?')) {
+                localStorage.removeItem('token');
+                window.location.href = '/frontoffice';
+            }
+        }
+
+        // Código executado quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configura o evento de submissão do formulário
+            document.getElementById('movieForm').addEventListener('submit', handleMovieSubmit);
+            
+            // Verifica se o utilizador está autenticado
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Faça login primeiro');
+                window.location.href = '/frontoffice/login';
+                return;
+            }
+            
+            // Carrega a lista de filmes
+            loadMovies();
+        });
+    </script>
+</body>
+</html>

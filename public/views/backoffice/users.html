@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Admin - Utilizadores</title>
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #0ea5e9;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .sidebar-header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            color: var(--text);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .admin-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            padding: 16px;
+            text-align: left;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.875rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .admin-badge {
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .user-badge {
+            background: #475569;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .form-note {
+            color: var(--text-light);
+            font-size: 0.75rem;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PIS Admin</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/backoffice">Dashboard</a></li>
+                    <li><a href="/backoffice/movies">Filmes</a></li>
+                    <li><a href="/backoffice/actors">Atores</a></li>
+                    <li><a href="/backoffice/genres">Géneros</a></li>
+                    <li><a href="/backoffice/users" class="active">Utilizadores</a></li>
+                    <li><a href="/backoffice/reviews">Reviews</a></li>
+                    <li><a href="#" onclick="logout()">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="admin-header">
+                <h1>Utilizadores</h1>
+                <button class="btn btn-primary" onclick="openUserModal()">Novo Utilizador</button>
+            </header>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Tipo</th>
+                            <th>Registo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table">
+                        <!-- Carregado por JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="userModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Utilizador</h2>
+                <button type="button" class="close-modal" onclick="closeUserModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    
+                    <div class="form-group">
+                        <label for="userName">Nome *</label>
+                        <input type="text" id="userName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userEmail">Email *</label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userPassword">Password *</label>
+                        <input type="password" id="userPassword" minlength="6">
+                        <div class="form-note">Mínimo 6 caracteres. Deixe em branco para manter atual.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userType">Tipo de Utilizador *</label>
+                        <select id="userType" required>
+                            <option value="false">Utilizador Normal</option>
+                            <option value="true">Administrador</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Guarda o ID do utilizador que está a ser editado
+    // Se for null, significa que está a criar um novo utilizador
+    let currentUserId = null;
+
+    // Abre o modal para criar ou editar um utilizador
+    // Recebe um userId opcional - se não receber, é criação, se receber, é edição
+    function openUserModal(userId = null) {
+        // Obtém o elemento do modal
+        const modal = document.getElementById('userModal');
+        // Obtém o campo de password para ajustar a obrigatoriedade
+        const passwordField = document.getElementById('userPassword');
+        
+        // Se receber um ID, está em modo de edição
+        if (userId) {
+            // Guarda o ID do utilizador que está a ser editado
+            currentUserId = userId;
+            // Muda o título do modal para "Editar Utilizador"
+            document.getElementById('modalTitle').textContent = 'Editar Utilizador';
+            // Na edição, a password é opcional (pode manter a atual)
+            passwordField.required = false;
+            // Carrega os dados do utilizador no formulário
+            loadUserData(userId);
+        } else {
+            // Se não receber ID, está em modo de criação
+            currentUserId = null; // Não há utilizador a editar
+            // Muda o título do modal para "Novo Utilizador"
+            document.getElementById('modalTitle').textContent = 'Novo Utilizador';
+            // Na criação, a password é obrigatória
+            passwordField.required = true;
+            // Limpa o formulário para criar novo utilizador
+            resetForm();
+        }
+        
+        // Mostra o modal na página
+        modal.classList.add('active');
+    }
+
+    // Fecha o modal e limpa o formulário
+    function closeUserModal() {
+        // Obtém o elemento do modal
+        const modal = document.getElementById('userModal');
+        // Esconde o modal
+        modal.classList.remove('active');
+        // Limpa o formulário e reseta as variáveis
+        resetForm();
+    }
+
+    // Limpa o formulário e reseta a variável currentUserId
+    function resetForm() {
+        // Reseta todos os campos do formulário
+        document.getElementById('userForm').reset();
+        // Volta a definir o tipo de utilizador como "Utilizador Normal"
+        document.getElementById('userType').value = "false";
+        // Reseta o ID do utilizador que está a ser editado
+        currentUserId = null;
+    }
+
+    // Carrega os dados de um utilizador específico para edição
+    async function loadUserData(userId) {
+        try {
+            // Obtém o token de autenticação do localStorage
+            const token = localStorage.getItem('token');
+            
+            // Faz pedido à API para obter os dados do utilizador
+            const response = await fetch(`/api/auth/users/${userId}`, {
+                headers: { 
+                    'Authorization': `Bearer ${token}` // Envia o token para autenticação
+                }
+            });
+            
+            // Converte a resposta para JSON
+            const user = await response.json();
+            
+            // Preenche o formulário com os dados do utilizador
+            document.getElementById('userName').value = user.name || ''; // Nome do utilizador
+            document.getElementById('userEmail').value = user.email || ''; // Email do utilizador
+            // Converte o booleano is_admin para string "true" ou "false"
+            document.getElementById('userType').value = user.is_admin ? "true" : "false";
+            // Não preenche o campo da password por segurança
+            document.getElementById('userPassword').value = '';
+            
+        } catch (error) {
+            // Se ocorrer erro, mostra mensagem e fecha o modal
+            alert('Erro ao carregar dados do utilizador');
+            closeUserModal();
+        }
+    }
+
+    // Carrega todos os utilizadores e mostra na tabela
+    async function loadUsers() {
+        try {
+            // Obtém o token de autenticação
+            const token = localStorage.getItem('token');
+            
+            // Faz pedido à API para obter todos os utilizadores
+            const response = await fetch('/api/auth/users', {
+                headers: { 
+                    'Authorization': `Bearer ${token}` // Apenas admins podem ver utilizadores
+                }
+            });
+            
+            // Converte a resposta para JSON
+            const users = await response.json();
+            // Decodifica o token para obter informações do utilizador atual
+            const currentUser = JSON.parse(atob(token.split('.')[1]));
+            // Obtém o corpo da tabela onde os utilizadores vão aparecer
+            const tableBody = document.getElementById('users-table');
+            
+            // Se não houver utilizadores, mostra mensagem
+            if (users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">Nenhum utilizador encontrado</td></tr>';
+                return;
+            }
+            
+            // Cria o HTML para cada utilizador na tabela
+            let html = '';
+            users.forEach(user => {
+                // Verifica se este utilizador é o utilizador atual (logado)
+                const isCurrentUser = user.id === currentUser.id;
+                
+                html += `
+                    <tr>
+                        <td>${user.id}</td> <!-- ID do utilizador -->
+                        <td><strong>${user.name}</strong></td> <!-- Nome do utilizador -->
+                        <td>${user.email}</td> <!-- Email do utilizador -->
+                        <td>
+                            ${user.is_admin ? 
+                                // Se for admin, mostra badge azul
+                                '<span class="admin-badge">Administrador</span>' : 
+                                // Se não for admin, mostra badge cinza
+                                '<span class="user-badge">Utilizador</span>'
+                            }
+                        </td>
+                        <td>${new Date(user.created_at).toLocaleDateString('pt-PT')}</td> <!-- Data de registo -->
+                        <td>
+                            <!-- Botão para editar o utilizador -->
+                            <button onclick="editUser(${user.id})" class="btn btn-primary">Editar</button>
+                            <!-- Botão para apagar o utilizador (desabilitado se for o próprio) -->
+                            <button onclick="deleteUser(${user.id})" 
+                                    class="btn btn-danger"
+                                    ${isCurrentUser ? 'disabled' : ''}>
+                                Apagar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // Insere o HTML na tabela
+            tableBody.innerHTML = html;
+            
+        } catch (error) {
+            // Se ocorrer erro, mostra mensagem
+            alert('Erro ao carregar utilizadores');
+        }
+    }
+
+    // Guarda um utilizador (cria novo ou atualiza existente)
+    async function saveUser(userData) {
+        try {
+            // Obtém o token de autenticação
+            const token = localStorage.getItem('token');
+            
+            // Prepara os dados para enviar à API
+            const dataToSend = {
+                name: userData.name, // Nome do utilizador
+                email: userData.email, // Email do utilizador
+                // Converte a string "true"/"false" para booleano
+                is_admin: userData.user_type === "true"
+            };
+            
+            // Só envia password se não estiver vazia
+            // Importante: na edição, se o campo password estiver vazio, mantém a atual
+            if (userData.password && userData.password.trim() !== '') {
+                dataToSend.password = userData.password;
+            }
+            
+            // Define o URL e método HTTP conforme seja criação ou edição
+            const url = currentUserId ? `/api/auth/users/${currentUserId}` : '/api/auth/users';
+            const method = currentUserId ? 'PUT' : 'POST';
+            
+            // Faz o pedido à API
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json', // Indica que envia JSON
+                    'Authorization': `Bearer ${token}` // Envia token para autenticação
+                },
+                body: JSON.stringify(dataToSend) // Converte dados para JSON
+            });
+            
+            // Verifica se a operação foi bem sucedida
+            if (response.ok) {
+                return true; // Retorna verdadeiro para indicar sucesso
+            } else {
+                // Se houver erro, obtém a mensagem da API
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao guardar');
+            }
+            
+        } catch (error) {
+            // Se ocorrer erro, mostra mensagem
+            alert('Erro: ' + error.message);
+            return false; // Retorna falso para indicar falha
+        }
+    }
+
+    // Apaga um utilizador
+    async function deleteUser(userId) {
+        // Pede confirmação ao utilizador antes de apagar
+        if (!confirm('Tem certeza que deseja apagar este utilizador?')) {
+            return; // Se não confirmar, cancela a operação
+        }
+        
+        try {
+            const token = localStorage.getItem('token');
+            // Decodifica o token para obter informações do utilizador atual
+            const currentUser = JSON.parse(atob(token.split('.')[1]));
+            
+            // Verifica se está a tentar apagar a sua própria conta
+            if (userId === currentUser.id) {
+                alert('Não pode apagar a sua própria conta!');
+                return; // Impede que o utilizador se apague a si mesmo
+            }
+            
+            // Faz pedido DELETE à API para apagar o utilizador
+            const response = await fetch(`/api/auth/users/${userId}`, {
+                method: 'DELETE',
+                headers: { 
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            
+            if (response.ok) {
+                alert('Utilizador apagado!'); // Mostra mensagem de sucesso
+                await loadUsers(); // Recarrega a lista de utilizadores
+            } else {
+                throw new Error('Erro ao apagar utilizador');
+            }
+            
+        } catch (error) {
+            alert('Erro: ' + error.message); // Mostra erro ao utilizador
+        }
+    }
+
+    // Processa o envio do formulário
+    async function handleUserSubmit(event) {
+        event.preventDefault(); // Impede o comportamento padrão do formulário (recarregar página)
+        
+        // Obtém os dados do formulário
+        const userData = {
+            name: document.getElementById('userName').value.trim(), // Nome (remove espaços extras)
+            email: document.getElementById('userEmail').value.trim(), // Email (remove espaços extras)
+            password: document.getElementById('userPassword').value, // Password
+            user_type: document.getElementById('userType').value // "true" ou "false"
+        };
+        
+        // Validação básica - verifica se nome e email não estão vazios
+        if (!userData.name || !userData.email) {
+            alert('Preencha todos os campos obrigatórios');
+            return; // Para a execução se faltar campos obrigatórios
+        }
+        
+        // Valida o formato do email usando expressão regular
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userData.email)) {
+            alert('Por favor, insira um email válido');
+            return; // Para a execução se o email for inválido
+        }
+        
+        // Se for criação de novo utilizador, verifica a password
+        if (!currentUserId && (!userData.password || userData.password.length < 6)) {
+            alert('A password deve ter pelo menos 6 caracteres');
+            return; // Para a execução se a password for muito curta
+        }
+        
+        // Guarda o utilizador
+        const success = await saveUser(userData);
+        
+        // Se guardou com sucesso
+        if (success) {
+            // Mostra mensagem de sucesso (diferente para criação e edição)
+            const message = currentUserId ? 'Utilizador atualizado!' : 'Utilizador criado!';
+            alert(message);
+            closeUserModal(); // Fecha o modal
+            await loadUsers(); // Recarrega a lista de utilizadores
+        }
+    }
+
+    // Função auxiliar para editar um utilizador
+    // Abre o modal com os dados do utilizador preenchidos
+    function editUser(userId) {
+        openUserModal(userId);
+    }
+
+    // Termina a sessão do utilizador
+    function logout() {
+        // Pede confirmação antes de terminar sessão
+        if (confirm('Terminar sessão?')) {
+            localStorage.removeItem('token'); // Remove o token de autenticação
+            window.location.href = '/frontoffice'; // Redireciona para a página inicial
+        }
+    }
+
+    // Código executado quando a página carrega completamente
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configura o evento de submissão do formulário
+        // Quando o formulário é submetido, chama handleUserSubmit
+        document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
+        
+        // Fecha o modal ao clicar fora dele
+        const modal = document.getElementById('userModal');
+        if (modal) {
+            modal.addEventListener('click', function(event) {
+                // Se clicar exatamente no overlay (fora do conteúdo), fecha o modal
+                if (event.target === modal) {
+                    closeUserModal();
+                }
+            });
+        }
+        
+        // Verifica se o utilizador está autenticado
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Faça login primeiro');
+            window.location.href = '/frontoffice/login'; // Redireciona para login
+            return; // Para a execução
+        }
+        
+        // Verifica se o utilizador é administrador
+        try {
+            // Decodifica o token JWT para obter as informações
+            const currentUser = JSON.parse(atob(token.split('.')[1]));
+            if (!currentUser.is_admin) {
+                alert('Apenas administradores podem gerir utilizadores');
+                window.location.href = '/backoffice'; // Redireciona para dashboard
+                return; // Para a execução
+            }
+        } catch (error) {
+            // Se o token for inválido, remove-o e redireciona para login
+            localStorage.removeItem('token');
+            window.location.href = '/frontoffice/login';
+            return;
+        }
+        
+        // Carrega a lista de utilizadores quando a página abre
+        loadUsers();
+    });
+</script>
+</body>
+</html>

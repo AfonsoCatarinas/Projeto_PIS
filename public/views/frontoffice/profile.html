@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Movies - Meu Perfil</title>
+    <style>
+        :root {
+            --dark-bg: #040714;
+            --card-bg: #0c111b;
+            --accent: #0063e5;
+            --accent-hover: #0483ee;
+            --text: #f9f9f9;
+            --text-light: #c0c0c0;
+            --border: #2a2a3c;
+            --success: #00a86b;
+            --gold: #ffd700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--dark-bg);
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        nav a:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        nav a.active {
+            color: var(--accent);
+            background: rgba(0, 99, 229, 0.1);
+        }
+
+        main {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+            width: 100%;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        #user-email {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .profile-sections {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 50px;
+        }
+
+        section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--text);
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+        }
+
+        .favorite-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .favorite-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .favorite-poster {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .favorite-info {
+            padding: 15px;
+        }
+
+        .favorite-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text);
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .favorite-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .remove-btn {
+            background: rgba(255, 87, 87, 0.1);
+            color: #ff5757;
+            border: 1px solid rgba(255, 87, 87, 0.3);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .remove-btn:hover {
+            background: #ff5757;
+            color: white;
+        }
+        .review-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .review-item:hover {
+            border-color: var(--accent);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .review-movie {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .review-rating {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .review-comment {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .review-date {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .list-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 99, 229, 0.2);
+        }
+
+        input:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 99, 229, 0.3);
+        }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            border-color: var(--accent);
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .list-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+
+        .list-meta {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .list-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .view-btn {
+            background: rgba(0, 99, 229, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(0, 99, 229, 0.3);
+        }
+
+        .view-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .delete-btn {
+            background: rgba(255, 87, 87, 0.1);
+            color: #ff5757;
+            border: 1px solid rgba(255, 87, 87, 0.3);
+        }
+
+        .delete-btn:hover {
+            background: #ff5757;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .empty-state h3 {
+            color: var(--text);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        @media (max-width: 1200px) {
+            .movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .profile-sections {
+                gap: 30px;
+            }
+            
+            section {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header, main {
+                padding: 20px;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .profile-header h1 {
+                font-size: 2rem;
+            }
+            
+            .movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 20px;
+            }
+            
+            .favorite-poster {
+                height: 200px;
+            }
+            
+            .list-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .list-actions {
+                width: 100%;
+            }
+            
+            .list-btn {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .movies-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            section {
+                padding: 20px;
+            }
+        }
+
+        footer {
+            background: var(--card-bg);
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 60px;
+        }
+
+        footer p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="/frontoffice" class="logo">PIS MOVIES</a>
+            <nav>
+                <ul>
+                    <li><a href="/frontoffice">Início</a></li>
+                    <li><a href="/frontoffice/movies">Filmes</a></li>
+                    <li><a href="/frontoffice/profile" class="active">Meu Perfil</a></li>
+                    <li><a href="#" onclick="logout()">Logout</a></li>
+                    <li id="admin-link" style="display: none;">
+                        <a href="/backoffice">Backoffice</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1>Meu Perfil</h1>
+                <p id="user-email"></p>
+            </div>
+
+            <div class="profile-sections">
+                <section>
+                    <h2>Meus Favoritos</h2>
+                    <div class="movies-grid" id="favorites-container">
+                        <div class="loading">A carregar favoritos...</div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Minhas Reviews</h2>
+                    <div id="my-reviews-container">
+                        <div class="loading">A carregar reviews...</div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Criar Lista Personalizada</h2>
+                    <form class="list-form" onsubmit="createCustomList(event)">
+                        <div class="form-group">
+                            <input type="text" id="list-name" placeholder="Nome da lista" required>
+                        </div>
+                        <button type="submit" class="btn">Criar Lista</button>
+                    </form>
+                    <div id="my-lists">
+                        <div class="loading">A carregar listas...</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>PIS Movies &copy; 2025 - O seu portal definitivo para o mundo do cinema</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

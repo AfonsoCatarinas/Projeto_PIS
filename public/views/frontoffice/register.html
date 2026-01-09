@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Movies - Registo</title>
+    <style>
+        :root {
+            --dark-bg: #040714;
+            --card-bg: #0c111b;
+            --accent: #0063e5;
+            --accent-hover: #0483ee;
+            --text: #f9f9f9;
+            --text-light: #c0c0c0;
+            --border: #2a2a3c;
+            --error: #ff375f;
+            --success: #00b4a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--dark-bg);
+            padding: 20px 40px;
+            width: 100%;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--text);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .form-container {
+            background: var(--card-bg);
+            padding: 50px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-container h1 {
+            font-size: 2rem;
+            margin-bottom: 35px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 99, 229, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group input:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .password-requirements {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 99, 229, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .form-container p {
+            margin-top: 25px;
+            text-align: center;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .form-container a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .form-container a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        #message {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error {
+            background: rgba(255, 55, 95, 0.1);
+            border: 1px solid var(--error);
+            color: #ff6b6b;
+        }
+
+        .success {
+            background: rgba(0, 180, 160, 0.1);
+            border: 1px solid var(--success);
+            color: #00b4a0;
+        }
+
+        @media (max-width: 768px) {
+            header, .header-container {
+                padding: 15px 20px;
+            }
+            
+            .form-container {
+                padding: 35px 25px;
+                margin: 20px;
+            }
+            
+            .form-container h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 30px 20px;
+            }
+            
+            .form-container h1 {
+                font-size: 1.6rem;
+            }
+            
+            nav ul {
+                gap: 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        footer {
+            background: var(--card-bg);
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        footer p {
+            color: var(--text-light);
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .btn.loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="/frontoffice" class="logo">PIS MOVIES</a>
+            <nav>
+                <ul>
+                    <li><a href="/frontoffice">Início</a></li>
+                    <li><a href="/frontoffice/login">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h1>Criar Conta</h1>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="name">Nome completo:</label>
+                    <input type="text" id="name" required placeholder="Ex: João Silva">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required placeholder="exemplo@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required minlength="6" placeholder="Mínimo 6 caracteres">
+                    <div class="password-requirements">Mínimo 6 caracteres</div>
+                </div>
+                <button type="submit" class="btn">Criar Conta</button>
+            </form>
+            
+            <p>
+                Já tem conta? <a href="/frontoffice/login">Faça login aqui</a>
+            </p>
+            
+            <div id="message"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <p>PIS Movies &copy; 2025</p>
+            <p>O seu portal definitivo para o mundo do cinema</p>
+        </div>
+    </footer>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>

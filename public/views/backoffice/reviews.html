@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIS Admin - Reviews</title>
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #0ea5e9;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .sidebar-header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            color: var(--text);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .admin-header {
+            margin-bottom: 32px;
+        }
+
+        .admin-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            padding: 16px;
+            text-align: left;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.875rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .rating {
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .comment {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        /* Modal Simples */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .review-detail {
+            margin-bottom: 20px;
+        }
+
+        .review-detail p {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .review-detail .label {
+            color: var(--text-light);
+            font-weight: 500;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .review-comment {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            color: var(--text);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PIS Admin</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/backoffice">Dashboard</a></li>
+                    <li><a href="/backoffice/movies">Filmes</a></li>
+                    <li><a href="/backoffice/actors">Atores</a></li>
+                    <li><a href="/backoffice/genres">Géneros</a></li>
+                    <li><a href="/backoffice/users">Utilizadores</a></li>
+                    <li><a href="/backoffice/reviews" class="active">Reviews</a></li>
+                    <li><a href="#" onclick="logout()">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="admin-header">
+                <h1>Reviews</h1>
+            </header>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Utilizador</th>
+                            <th>Filme</th>
+                            <th>Classificação</th>
+                            <th>Comentário</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviews-table">
+                        <!-- As reviews serão carregadas aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="reviewModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Detalhes da Review</h2>
+                <button class="close-modal" onclick="closeReviewModal()">&times;</button>
+            </div>
+            
+            <div id="reviewDetails">
+                <!-- Os detalhes serão carregados aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Função para abrir o modal e ver detalhes de uma review
+    function openReviewModal(reviewId) {
+        const modal = document.getElementById('reviewModal');
+        loadReviewDetails(reviewId); // Carrega os dados da review
+        modal.classList.add('active'); // Mostra o modal
+    }
+
+    // Função para fechar o modal
+    function closeReviewModal() {
+        const modal = document.getElementById('reviewModal');
+        modal.classList.remove('active'); // Esconde o modal
+    }
+
+    // Carrega os detalhes de uma review específica
+    async function loadReviewDetails(reviewId) {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/reviews/${reviewId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao carregar detalhes');
+            }
+
+            const review = await response.json();
+            
+            // Formata a data da review
+            const reviewDate = new Date(review.created_at);
+            const formattedDate = reviewDate.toLocaleDateString('pt-PT') + ' ' + 
+                                 reviewDate.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+
+            // Cria as estrelas da classificação
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += i <= review.rating ? '★' : '☆';
+            }
+
+            // Mostra os detalhes no modal
+            const detailsDiv = document.getElementById('reviewDetails');
+            detailsDiv.innerHTML = `
+                <div class="review-detail">
+                    <p><span class="label">Filme:</span> ${review.movie_title || 'Filme Desconhecido'}</p>
+                    <p><span class="label">Utilizador:</span> ${review.user_name || 'Anónimo'}</p>
+                    <p><span class="label">Classificação:</span> ${stars} (${review.rating}/5)</p>
+                    <p><span class="label">Data:</span> ${formattedDate}</p>
+                </div>
+                
+                <div class="review-detail">
+                    <p><span class="label">Comentário:</span></p>
+                    <div class="review-comment">
+                        ${review.comment || '<em>Sem comentário</em>'}
+                    </div>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Erro:', error);
+            document.getElementById('reviewDetails').innerHTML = `
+                <div class="empty-message">
+                    Erro ao carregar detalhes da review.
+                </div>
+            `;
+        }
+    }
+
+    // Carrega todas as reviews e mostra na tabela
+    async function loadReviews() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Faça login primeiro');
+                window.location.href = '/frontoffice/login';
+                return;
+            }
+
+            const response = await fetch('/api/reviews', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao carregar reviews');
+            }
+
+            const reviews = await response.json();
+            const tableBody = document.getElementById('reviews-table');
+
+            // Se não houver reviews, mostra mensagem
+            if (reviews.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7">Nenhuma review encontrada</td></tr>';
+                return;
+            }
+
+            // Cria o HTML para cada review na tabela
+            let html = '';
+            reviews.forEach(review => {
+                const reviewDate = new Date(review.created_at);
+                const formattedDate = reviewDate.toLocaleDateString('pt-PT');
+
+                html += `
+                    <tr>
+                        <td>${review.id}</td>
+                        <td>${review.user_name || 'Anónimo'}</td>
+                        <td>${review.movie_title || 'Filme Desconhecido'}</td>
+                        <td class="rating">${review.rating}/5</td>
+                        <td class="comment" title="${review.comment || ''}">
+                            ${review.comment ? review.comment.substring(0, 50) + '...' : 'Sem comentário'}
+                        </td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            <button onclick="openReviewModal(${review.id})" class="btn btn-primary">Ver</button>
+                            <button onclick="deleteReview(${review.id})" class="btn btn-danger">Apagar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao carregar reviews');
+        }
+    }
+
+    // Apaga uma review
+    async function deleteReview(reviewId) {
+        // Pede confirmação ao utilizador
+        if (!confirm('Tem certeza que deseja apagar esta review?')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/reviews/${reviewId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                alert('Review apagada!');
+                await loadReviews(); // Recarrega a lista
+            } else {
+                alert('Erro ao apagar review');
+            }
+
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    }
+
+    // Termina a sessão do utilizador
+    function logout() {
+        if (confirm('Terminar sessão?')) {
+            localStorage.removeItem('token');
+            window.location.href = '/frontoffice';
+        }
+    }
+
+    // Código executado quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+        // Carrega as reviews quando a página abre
+        loadReviews();
+    });
+</script>
+</body>
+</html>
